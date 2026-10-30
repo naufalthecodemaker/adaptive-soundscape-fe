@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { AlertCircle, Pause, X, Music } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import { analyzeAndGenerateSoundMask, saveSoundMask } from "@/lib/api";
+import { analyzeAndGenerateSoundMask, saveSoundMask, resolveAudioUrl } from "@/lib/api";
 import { blobToWav } from "@/lib/audio/toWav";
 import { AnalyzeSoundResponseData, PreferenceSoundType, SoundType } from "@/types/api";
 
@@ -211,7 +211,7 @@ export default function RecordButton({
         throw new Error(res.message || "Analysis failed.");
       }
       setAnalysisResult(res.data);
-      audioElRef.current = new Audio(res.data.audio.url);
+      audioElRef.current = new Audio(resolveAudioUrl(res.data.audio.url));
       audioElRef.current.onended = () => setIsPlaying(false);
       setStatus("analyzed");
     } catch (err: any) {
@@ -261,8 +261,8 @@ export default function RecordButton({
         title: title.trim(),
         // Enum di database memakai nama tanpa "_real" (default, rain, water_stream, wind, sea_waves)
         sound_type: profile?.dbType ?? "default",
-        analysis: JSON.stringify(analysisResult.analysis), // backend mengharapkan string JSON.stringify(analysisResult.analysis), // backend mengharapkan string
-        r2_audio_url: analysisResult.audio.url,
+        analysis: JSON.stringify(analysisResult.analysis), // backend mengharapkan string
+        r2_key: analysisResult.audio.key,
       });
       if (!res.success) throw new Error(res.message || "Failed to save.");
       setShowSaveModal(false);

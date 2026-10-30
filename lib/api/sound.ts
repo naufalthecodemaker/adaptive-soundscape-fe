@@ -42,6 +42,23 @@ export async function saveSoundMask(payload: SaveSoundMaskPayload) {
 }
 
 /**
+ * Membungkus URL Cloudflare R2 (*.r2.dev) dengan proxy internal Next.js (/api/audio)
+ * agar tetap bisa diputar meskipun domain r2.dev diblokir oleh DNS/ISP lokal.
+ */
+export function resolveAudioUrl(rawUrl?: string): string {
+  if (!rawUrl) return "";
+  try {
+    const u = new URL(rawUrl);
+    if (u.hostname.endsWith(".r2.dev")) {
+      return `/api/audio?url=${encodeURIComponent(rawUrl)}`;
+    }
+    return rawUrl;
+  } catch {
+    return rawUrl;
+  }
+}
+
+/**
  * Mengecek apakah presigned URL R2/S3 sudah kedaluwarsa berdasarkan parameter X-Amz-Date dan X-Amz-Expires.
  */
 export function isPresignedUrlExpired(urlStr?: string): boolean {
@@ -87,7 +104,9 @@ export async function getSavedSoundMasks(params?: GetSoundMasksParams) {
   });
 
   if (res.data && Array.isArray(res.data)) {
-    res.data = res.data.filter((item) => !isPresignedUrlExpired(item.r2_audio_url));
+    res.data = res.data.filter(
+      (item) => !isPresignedUrlExpired(item.r2_audio_url || item.r2_key)
+    );
   }
 
   return res;

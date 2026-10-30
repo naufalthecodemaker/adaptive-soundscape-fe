@@ -6,7 +6,7 @@ import { Play, Pause, SkipBack, SkipForward, Repeat, AlertCircle } from "lucide-
 import Navbar from "@/components/layout/Navbar";
 import MobileDrawer from "@/components/layout/MobileDrawer";
 import { useAuth } from "@/context/AuthContext";
-import { getSavedSoundMasks } from "@/lib/api";
+import { getSavedSoundMasks, resolveAudioUrl } from "@/lib/api";
 import { getSoundTheme } from "@/lib/soundTheme";
 import { SavedSoundMaskItem } from "@/types/api";
 
@@ -59,7 +59,7 @@ function PlayPageContent() {
   // Siapkan audio setiap kali suara yang dipilih berganti
   useEffect(() => {
     if (!sound) return;
-    const audio = new Audio(sound.r2_audio_url);
+    const audio = new Audio(resolveAudioUrl(sound.r2_audio_url || sound.r2_key || ""));
     audioRef.current = audio;
     setCurrent(0);
     setDuration(0);
@@ -68,17 +68,28 @@ function PlayPageContent() {
 
     audio.onloadedmetadata = () => setDuration(audio.duration);
     audio.ontimeupdate = () => setCurrent(audio.currentTime);
-    audio.onplay = () => setIsPlaying(true);
+    audio.onplay = () => {
+      setIsPlaying(true);
+      setError("");
+    };
     audio.onpause = () => setIsPlaying(false);
-    audio.onerror = () => setError("Failed to load audio. The link may have expired.");
+    audio.onerror = () => {
+      setIsPlaying(false);
+      setError("Failed to load audio.");
+    };
 
     audio.play().catch(() => {
       /* autoplay bisa diblokir browser, user tinggal klik play */
     });
 
     return () => {
+      // Lepas semua event listener dulu sebelum menghentikan audio agar cleanup React StrictMode tidak memicu onerror palsu
+      audio.onloadedmetadata = null;
+      audio.ontimeupdate = null;
+      audio.onplay = null;
+      audio.onpause = null;
+      audio.onerror = null;
       audio.pause();
-      audio.src = "";
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sound?.id]);

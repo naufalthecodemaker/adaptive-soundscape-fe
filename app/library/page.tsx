@@ -103,7 +103,7 @@ export default function LibraryPage() {
     if (filtered.length === 0) return;
     const idx = filtered.findIndex((s) => s.id === player.playingId);
     const next = filtered[(idx + 1) % filtered.length];
-    player.toggle(next.id, next.r2_audio_url);
+    player.toggle(next.id, next.r2_audio_url || next.r2_key || "");
   };
 
   return (
@@ -218,7 +218,7 @@ export default function LibraryPage() {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      player.toggle(s.id, s.r2_audio_url);
+                      player.toggle(s.id, s.r2_audio_url || s.r2_key || "");
                     }}
                     aria-label={active && player.isPlaying ? "Pause" : "Play"}
                     className="p-2 text-gray-300 hover:text-purple-300 transition-colors"
@@ -259,7 +259,7 @@ export default function LibraryPage() {
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                player.toggle(nowPlaying.id, nowPlaying.r2_audio_url);
+                player.toggle(nowPlaying.id, nowPlaying.r2_audio_url || nowPlaying.r2_key || "");
               }}
               aria-label={player.isPlaying ? "Pause" : "Play"}
               className="cursor-pointer p-1 text-gray-200 hover:text-purple-300"

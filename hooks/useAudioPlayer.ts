@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import { resolveAudioUrl } from "@/lib/api";
 
 /**
  * Player audio tunggal: hanya satu suara yang diputar pada satu waktu.
@@ -37,7 +38,7 @@ export function useAudioPlayer() {
 
       // Klik item lain -> ganti audio
       audioRef.current?.pause();
-      const audio = new Audio(url);
+      const audio = new Audio(resolveAudioUrl(url));
       audio.loop = true; // suara masking dibuat untuk loop
       audio.ontimeupdate = () => {
         if (audio.duration) setProgress((audio.currentTime / audio.duration) * 100);

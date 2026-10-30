@@ -109,7 +109,7 @@ export default function TopProfiles() {
                   aria-label={`${player.playingId === sound.id && player.isPlaying ? "Pause" : "Play"} ${sound.title || 'Sound'}`}
                   onClick={(e) => {
                     e.stopPropagation();
-                    player.toggle(sound.id, sound.r2_audio_url);
+                    player.toggle(sound.id, sound.r2_audio_url || sound.r2_key || "");
                   }}
                 >
                   {player.playingId === sound.id && player.isPlaying ? (

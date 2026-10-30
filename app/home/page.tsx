@@ -76,7 +76,7 @@ export default function MainPage() {
       {/* Main Recording Container */}
       <main className="flex-1 flex flex-col items-center justify-center px-4 py-6 max-w-2xl mx-auto w-full">
         <RecordButton
-          key={resetCount}
+          key={`record-${resetCount}`}
           onStatusChange={(status) => setRecordingStatus(status)}
           onSaved={handleResetHome}
           onBackHome={handleResetHome}
@@ -87,7 +87,7 @@ export default function MainPage() {
 
         {/* Top Profiles hanya ditampilkan ketika tidak sedang merekam/terjadi error */}
         {recordingStatus === "idle" && (
-          <TopProfiles />
+          <TopProfiles key={`profiles-${resetCount}`} />
         )}
       </main>
 

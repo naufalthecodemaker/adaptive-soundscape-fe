@@ -57,7 +57,7 @@ export interface SaveSoundMaskPayload {
   title: string;
   sound_type: string;
   analysis: string | Record<string, any>; // Stringified JSON / JSON Object
-  r2_audio_url: string;
+  r2_key: string;
 }
 
 export interface SavedSoundMaskItem {
@@ -67,6 +67,7 @@ export interface SavedSoundMaskItem {
   sound_type: string;
   analysis: string | Record<string, any>;
   r2_audio_url: string;
+  r2_key?: string;
   created_at?: string;
 }
 
