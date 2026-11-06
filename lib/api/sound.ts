@@ -114,11 +114,25 @@ export async function getSavedSoundMasks(params?: GetSoundMasksParams) {
 
 
 /**
- * DELETE /api/sound  (butuh endpoint backend: belum tersedia di API saat ini)
- * menghapus seluruh library suara milik user
+ * DELETE /api/sound/{id}
+ * menghapus satu masking sound milik user dari database
  */
-export async function resetLibrary() {
-  return fetchAPI<ApiResponse<null>>("api/sound", {
+export async function deleteSoundMask(id: string) {
+  return fetchAPI<ApiResponse<null>>(`api/sound/${encodeURIComponent(id)}`, {
     method: "DELETE",
   });
+}
+
+/**
+ * DELETE /api/sound  (menghapus seluruh library suara milik user satu per satu melalui DELETE /api/sound/{id})
+ */
+export async function resetLibrary() {
+  const listRes = await getSavedSoundMasks();
+  const items = listRes.data ?? [];
+  await Promise.all(items.map((item) => deleteSoundMask(item.id)));
+  return {
+    success: true,
+    message: "Successfully reset library",
+    data: null,
+  } as ApiResponse<null>;
 }

@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Play, Pause, Lock, Music } from "lucide-react";
+import { Play, Pause, Lock, Music, Trash2 } from "lucide-react";
 import { useAudioPlayer } from "@/hooks/useAudioPlayer";
 import { useAuth } from "@/context/AuthContext";
-import { getSavedSoundMasks } from "@/lib/api";
+import { getSavedSoundMasks, deleteSoundMask } from "@/lib/api";
 import { SavedSoundMaskItem } from "@/types/api";
 
 export default function TopProfiles() {
@@ -15,6 +15,30 @@ export default function TopProfiles() {
 
   const [profiles, setProfiles] = useState<SavedSoundMaskItem[]>([]);
   const [isLoadingData, setIsLoadingData] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const handleDelete = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    if (deletingId) return;
+    setDeletingId(id);
+    try {
+      const res = await deleteSoundMask(id);
+      if (res.success) {
+        if (player.playingId === id) player.stop();
+        // Ambil ulang daftar agar tetap menampilkan maksimal 3 profil teratas
+        const updated = await getSavedSoundMasks();
+        if (updated.success && updated.data) {
+          setProfiles(updated.data.slice(0, 3));
+        } else {
+          setProfiles((prev) => prev.filter((item) => item.id !== id));
+        }
+      }
+    } catch (err) {
+      console.error("Gagal menghapus sound:", err);
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   // Mengambil data top profiles dari database jika user sudah terautentikasi
   useEffect(() => {
@@ -104,20 +128,31 @@ export default function TopProfiles() {
                   </span>
                 </div>
 
-                <button 
-                  className="p-2 text-gray-400 group-hover:text-purple-400 transition-colors"
-                  aria-label={`${player.playingId === sound.id && player.isPlaying ? "Pause" : "Play"} ${sound.title || 'Sound'}`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    player.toggle(sound.id, sound.r2_audio_url || sound.r2_key || "");
-                  }}
-                >
-                  {player.playingId === sound.id && player.isPlaying ? (
-                    <Pause className="w-5 h-5 fill-current" />
-                  ) : (
-                    <Play className="w-5 h-5 fill-current" />
-                  )}
-                </button>
+                <div className="flex items-center gap-1 flex-shrink-0">
+                  <button 
+                    className="p-2 text-gray-400 group-hover:text-purple-400 transition-colors"
+                    aria-label={`${player.playingId === sound.id && player.isPlaying ? "Pause" : "Play"} ${sound.title || 'Sound'}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      player.toggle(sound.id, sound.r2_audio_url || sound.r2_key || "");
+                    }}
+                  >
+                    {player.playingId === sound.id && player.isPlaying ? (
+                      <Pause className="w-5 h-5 fill-current" />
+                    ) : (
+                      <Play className="w-5 h-5 fill-current" />
+                    )}
+                  </button>
+
+                  <button
+                    onClick={(e) => handleDelete(e, sound.id)}
+                    disabled={deletingId === sound.id}
+                    aria-label={`Delete ${sound.title || "Sound"}`}
+                    className="p-2 text-gray-400 hover:text-red-400 transition-colors disabled:opacity-40"
+                  >
+                    <Trash2 className="w-5 h-5" />
+                  </button>
+                </div>
               </div>
             ))}
           </div>

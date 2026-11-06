@@ -11,12 +11,13 @@ import {
   ChevronRight,
   ArrowUpDown,
   AlertCircle,
+  Trash2,
 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import MobileDrawer from "@/components/layout/MobileDrawer";
 import { useAuth } from "@/context/AuthContext";
 import { useAudioPlayer } from "@/hooks/useAudioPlayer";
-import { getSavedSoundMasks } from "@/lib/api";
+import { getSavedSoundMasks, deleteSoundMask } from "@/lib/api";
 import { SavedSoundMaskItem } from "@/types/api";
 
 const PAGE_SIZE = 7;
@@ -53,6 +54,24 @@ export default function LibraryPage() {
   const [sortMode, setSortMode] = useState<SortMode>("newest");
   const [showSortMenu, setShowSortMenu] = useState(false);
   const [page, setPage] = useState(1);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const handleDelete = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    if (deletingId) return;
+    setDeletingId(id);
+    setError("");
+    try {
+      const res = await deleteSoundMask(id);
+      if (!res.success) throw new Error(res.message || "Failed to delete sound.");
+      if (player.playingId === id) player.stop();
+      setSounds((prev) => prev.filter((item) => item.id !== id));
+    } catch (err: any) {
+      setError(err.message || "Failed to delete sound.");
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   // Library hanya untuk user yang sudah login
   useEffect(() => {
@@ -215,20 +234,30 @@ export default function LibraryPage() {
                       </p>
                     </div>
                   </div>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      player.toggle(s.id, s.r2_audio_url || s.r2_key || "");
-                    }}
-                    aria-label={active && player.isPlaying ? "Pause" : "Play"}
-                    className="p-2 text-gray-300 hover:text-purple-300 transition-colors"
-                  >
-                    {active && player.isPlaying ? (
-                      <Pause className="w-5 h-5 fill-current" />
-                    ) : (
-                      <Play className="w-5 h-5 fill-current" />
-                    )}
-                  </button>
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        player.toggle(s.id, s.r2_audio_url || s.r2_key || "");
+                      }}
+                      aria-label={active && player.isPlaying ? "Pause" : "Play"}
+                      className="p-2 text-gray-300 hover:text-purple-300 transition-colors"
+                    >
+                      {active && player.isPlaying ? (
+                        <Pause className="w-5 h-5 fill-current" />
+                      ) : (
+                        <Play className="w-5 h-5 fill-current" />
+                      )}
+                    </button>
+                    <button
+                      onClick={(e) => handleDelete(e, s.id)}
+                      disabled={deletingId === s.id}
+                      aria-label={`Delete ${s.title}`}
+                      className="p-2 text-gray-300 hover:text-red-400 transition-colors disabled:opacity-40"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </button>
+                  </div>
                 </li>
               );
             })}

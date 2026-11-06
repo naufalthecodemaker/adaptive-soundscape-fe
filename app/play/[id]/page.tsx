@@ -2,11 +2,11 @@
 
 import { useState, useEffect, useRef, useMemo, Suspense } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Play, Pause, SkipBack, SkipForward, Repeat, AlertCircle } from "lucide-react";
+import { Play, Pause, SkipBack, SkipForward, Repeat, AlertCircle, Trash2 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import MobileDrawer from "@/components/layout/MobileDrawer";
 import { useAuth } from "@/context/AuthContext";
-import { getSavedSoundMasks, resolveAudioUrl } from "@/lib/api";
+import { getSavedSoundMasks, resolveAudioUrl, deleteSoundMask } from "@/lib/api";
 import { getSoundTheme } from "@/lib/soundTheme";
 import { SavedSoundMaskItem } from "@/types/api";
 
@@ -33,6 +33,30 @@ function PlayPageContent() {
   const [current, setCurrent] = useState(0);
   const [duration, setDuration] = useState(0);
   const [repeat, setRepeat] = useState(true); // suara masking dibuat untuk loop
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDeleteCurrent = async () => {
+    if (!sound || isDeleting) return;
+    setIsDeleting(true);
+    setError("");
+    try {
+      const res = await deleteSoundMask(sound.id);
+      if (!res.success) throw new Error(res.message || "Failed to delete sound.");
+      audioRef.current?.pause();
+      const remaining = sounds.filter((s) => s.id !== sound.id);
+      if (remaining.length > 0) {
+        const nextIdx = index % remaining.length;
+        setSounds(remaining);
+        router.replace(`/play/${remaining[nextIdx].id}`);
+      } else {
+        router.replace("/library");
+      }
+    } catch (err: any) {
+      setError(err.message || "Failed to delete sound.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   useEffect(() => {
     if (!isAuthLoading && !user) router.push("/auth");
@@ -233,6 +257,14 @@ function PlayPageContent() {
               </button>
               <button onClick={() => goTo(1)} aria-label="Next" className="p-2 hover:opacity-70">
                 <SkipForward className="w-6 h-6 fill-current" />
+              </button>
+              <button
+                onClick={handleDeleteCurrent}
+                disabled={isDeleting}
+                aria-label="Delete sound"
+                className="p-2 hover:text-red-400 transition-colors disabled:opacity-40"
+              >
+                <Trash2 className="w-6 h-6" />
               </button>
             </div>
           </>
