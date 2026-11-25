@@ -199,7 +199,7 @@ export default function LibraryPage() {
           {error && (
             <div className="flex items-center gap-2 text-xs text-red-300 px-4 py-2 rounded-lg bg-red-900/30 border border-red-500/20">
               <AlertCircle className="w-4 h-4" />
-              <span>[ {error} ]</span>
+              <span>{error}</span>
             </div>
           )}
 
@@ -282,7 +282,7 @@ export default function LibraryPage() {
                 />
               </div>
               {player.error && (
-                <p className="text-[10px] text-red-300 mt-1">[ {player.error} ]</p>
+                <p className="text-[10px] text-red-300 mt-1">{player.error}</p>
               )}
             </div>
             <button

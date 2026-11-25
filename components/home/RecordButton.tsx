@@ -365,7 +365,7 @@ export default function RecordButton({
           {/* Pesan Error dari API / Browser */}
           <div className="flex items-center gap-2 text-xs text-red-400/90 max-w-xs text-center px-4 py-2 rounded-lg bg-red-900/30 border border-red-500/20">
             <AlertCircle className="w-4 h-4 flex-shrink-0" />
-            <span>[ {errorMessage || "Failed to access microphone"} ]</span>
+            <span>{errorMessage || "Failed to access microphone"}</span>
           </div>
         </div>
       )}
@@ -398,7 +398,7 @@ export default function RecordButton({
           {analyzeError && (
             <div className="mt-6 flex items-center gap-2 text-xs text-red-300 max-w-xs text-center px-4 py-2 rounded-lg bg-red-900/30 border border-red-500/20">
               <AlertCircle className="w-4 h-4 flex-shrink-0" />
-              <span>[ {analyzeError} ]</span>
+              <span>{analyzeError}</span>
             </div>
           )}
 
@@ -469,7 +469,7 @@ export default function RecordButton({
           </button>
 
           {analyzeError && (
-            <p className="mt-4 text-xs text-red-300">[ {analyzeError} ]</p>
+            <p className="mt-4 text-xs text-red-300">{analyzeError}</p>
           )}
 
           <button
@@ -514,7 +514,7 @@ export default function RecordButton({
             />
 
             {saveError && (
-              <p className="mt-2 text-xs text-red-300 text-center">[ {saveError} ]</p>
+              <p className="mt-2 text-xs text-red-300 text-center">{saveError}</p>
             )}
 
             <button

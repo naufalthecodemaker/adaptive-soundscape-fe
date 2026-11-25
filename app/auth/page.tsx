@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { loginUser, registerUser } from "@/lib/api";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth, saveLocalUserMeta } from "@/context/AuthContext";
 
 // Urutan warna transisi sama seperti Landing Page: hitam/netral - merah - hijau - biru
 const COLOR_LAYERS = [
@@ -56,11 +56,23 @@ export default function AuthPage() {
         await refreshUser();
         router.push("/home");
       } else {
-        await registerUser({
+        const regRes = await registerUser({
           username: formData.username,
           email: formData.email,
           password: formData.password,
         });
+        if (regRes?.data) {
+          saveLocalUserMeta(regRes.data.username || formData.username, {
+            sub: regRes.data.id ? String(regRes.data.id) : undefined,
+            email: regRes.data.email || formData.email,
+            created_at: regRes.data.created_at || new Date().toISOString(),
+          });
+        } else {
+          saveLocalUserMeta(formData.username, {
+            email: formData.email,
+            created_at: new Date().toISOString(),
+          });
+        }
         // Otomatis login setelah berhasil register
         await loginUser({
           username: formData.username,

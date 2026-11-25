@@ -169,7 +169,7 @@ export default function SettingsPage() {
             {resetError && (
               <div className="flex items-center gap-2 text-xs text-red-300 mb-3 text-left">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                <span>[ {resetError} ]</span>
+                <span>{resetError}</span>
               </div>
             )}
             <button

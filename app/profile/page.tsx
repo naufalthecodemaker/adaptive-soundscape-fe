@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { User, X, AlertTriangle, AlertCircle } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import MobileDrawer from "@/components/layout/MobileDrawer";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth, saveLocalUserMeta } from "@/context/AuthContext";
 import { updateProfile, deleteAccount } from "@/lib/api";
 
 const CONFIRM_PHRASE = "DELETE";
@@ -28,7 +28,6 @@ export default function ProfilePage() {
   const [confirmText, setConfirmText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState("");
-
   // Halaman profile hanya untuk user yang sudah login
   useEffect(() => {
     if (!isAuthLoading && !user) router.push("/auth");
@@ -49,11 +48,20 @@ export default function ProfilePage() {
     setIsSaving(true);
     setEditError("");
     try {
+      saveLocalUserMeta(user?.sub || username.trim(), {
+        sub: user?.sub,
+        email: email.trim(),
+        created_at: user?.created_at,
+      });
       const res = await updateProfile({ username: username.trim(), email: email.trim() });
       if (!res.success) throw new Error(res.message || "Failed to update profile.");
       await refreshUser();
       setShowEdit(false);
     } catch (err: any) {
+      // Tetap perbarui email di state lokal jika backend belum memiliki endpoint PUT /api/me
+      if (user) {
+        setUser({ ...user, username: username.trim(), email: email.trim() });
+      }
       setEditError(err.message || "Failed to update profile.");
     } finally {
       setIsSaving(false);
@@ -81,7 +89,10 @@ export default function ProfilePage() {
     setDeleteError("");
   };
 
-  const joined = user?.created_at ? new Date(user.created_at).toLocaleDateString("en-GB") : "-";
+  const displayEmail = user?.email || "-";
+  const joined = user?.created_at
+    ? new Date(user.created_at).toLocaleDateString("en-GB")
+    : "-";
 
   return (
     <div className="min-h-screen flex flex-col bg-[#13141c]">
@@ -96,10 +107,10 @@ export default function ProfilePage() {
 
         {/* Info */}
         <div className="w-full mb-10">
-          <h1 className="text-2xl font-bold truncate">[ {user?.username ?? "Username"} ]</h1>
-          <p className="text-xl font-bold truncate mt-1">[ {user?.email ?? "Email"} ]</p>
-          <p className="text-[11px] text-gray-500 mt-1 truncate">[ {user?.sub ?? "User ID"} ]</p>
-          <p className="text-[11px] text-gray-500">Joined since [ {joined} ]</p>
+          <h1 className="text-2xl font-bold truncate text-white">{user?.username ?? "Username"}</h1>
+          <p className="text-lg font-medium text-gray-300 truncate mt-1">{displayEmail}</p>
+          <p className="text-[11px] text-gray-500 mt-1.5 truncate">ID: {user?.sub ?? "-"}</p>
+          <p className="text-[11px] text-gray-500">Joined since {joined}</p>
         </div>
 
         {/* Actions */}
@@ -147,7 +158,7 @@ export default function ProfilePage() {
             {editError && (
               <div className="flex items-center gap-2 text-xs text-red-300 mb-3">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                <span>[ {editError} ]</span>
+                <span>{editError}</span>
               </div>
             )}
 
@@ -188,7 +199,7 @@ export default function ProfilePage() {
             {deleteError && (
               <div className="flex items-center gap-2 text-xs text-red-300 mb-3">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                <span>[ {deleteError} ]</span>
+                <span>{deleteError}</span>
               </div>
             )}
 

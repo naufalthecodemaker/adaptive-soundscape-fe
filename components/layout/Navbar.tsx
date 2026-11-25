@@ -23,7 +23,6 @@ export default function Navbar({ onOpenMobileMenu, onResetHome }: NavbarProps) {
     { label: "Profile", href: "/profile" },
     { label: "Library", href: "/library" },
     { label: "Settings", href: "/settings" },
-    { label: "Help", href: "/help" },
   ];
 
   return (
@@ -70,7 +69,7 @@ export default function Navbar({ onOpenMobileMenu, onResetHome }: NavbarProps) {
           {mounted && user ? (
             <>
               <span className="text-sm font-medium text-purple-300 bg-purple-900/30 px-3 py-1.5 rounded-lg border border-purple-500/20">
-                [ {user.username} ]
+                {user.username}
               </span>
               <button
                 onClick={logout}

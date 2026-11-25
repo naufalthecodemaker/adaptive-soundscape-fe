@@ -1,6 +1,6 @@
 "use client";
 
-import { X, Home, User, Bookmark, Settings, HelpCircle, LogOut, LogIn } from "lucide-react";
+import { X, Home, User, Bookmark, Settings, LogOut, LogIn } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 
@@ -19,7 +19,6 @@ export default function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
     { label: "Profile", href: "/profile", icon: User },
     { label: "Library", href: "/library", icon: Bookmark },
     { label: "Settings", href: "/settings", icon: Settings },
-    { label: "Help", href: "/help", icon: HelpCircle },
   ];
 
   return (
@@ -41,25 +40,25 @@ export default function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
             >
               <X className="w-6 h-6" />
             </button>
-            <span className="text-xs text-purple-400 font-bold">~||~</span>
+            <img
+              src="/logo.svg"
+              alt="Adaptive SoundScape Logo"
+              className="w-8 h-8 object-contain"
+            />
           </div>
 
           {/* User Profile Info / Login Card */}
           <div className="flex items-center gap-4 pb-6 mb-6 border-b border-gray-800">
-            <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-700 border border-purple-500/30 flex-shrink-0">
-              <img 
-                src="https://via.placeholder.com/56" 
-                alt="Avatar" 
-                className="w-full h-full object-cover"
-              />
+            <div className="w-14 h-14 rounded-full overflow-hidden bg-[#232430] border-2 border-[#6b72a8] flex items-center justify-center flex-shrink-0">
+              <User className="w-7 h-7 text-gray-400" />
             </div>
 
             <div className="overflow-hidden">
               <h3 className="font-semibold text-white text-base truncate">
-                [ {user ? user.username : "Guest"} ]
+                {user ? user.username : "Guest"}
               </h3>
               <p className="text-xs text-gray-400 truncate">
-                [ {user ? user.sub.slice(0, 8) + "..." : "Not logged in"} ]
+                {user ? user.sub.slice(0, 8) + "..." : "Not logged in"}
               </p>
             </div>
           </div>
@@ -108,7 +107,7 @@ export default function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
           )}
 
           <div className="text-[10px] text-gray-500 text-center">
-            build [ v1.0.0 ]
+            build v1.0.0
           </div>
         </div>
       </div>

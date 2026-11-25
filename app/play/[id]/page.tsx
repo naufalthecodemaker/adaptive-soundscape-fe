@@ -176,7 +176,7 @@ function PlayPageContent() {
               className="text-2xl font-bold mt-4 mb-10 text-center truncate max-w-full"
               style={{ color: theme.accent }}
             >
-              [ {sound.title} ]
+              {sound.title}
             </h1>
 
             {/* Artwork */}
@@ -214,7 +214,7 @@ function PlayPageContent() {
             {error && (
               <div className="flex items-center gap-2 text-xs text-red-300 mt-4">
                 <AlertCircle className="w-4 h-4" />
-                <span>[ {error} ]</span>
+                <span>{error}</span>
               </div>
             )}
 
