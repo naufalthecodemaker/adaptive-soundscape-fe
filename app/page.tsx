@@ -13,7 +13,8 @@ const COLOR_LAYERS = [
   "linear-gradient(to bottom, #1b1b26 0%, #1c1a5c 100%)", // biru
 ];
 
-const HOLD_MS = 3000; // lama tiap warna ditampilkan
+const INITIAL_DELAY_MS = 5000; // tahan warna awal sejenak agar render awal stabil & cepat
+const HOLD_MS = 3000; // lama tiap warna ditampilkan setelahnya
 const FADE_MS = 1800; // durasi transisi antar warna
 
 export default function LandingPage() {
@@ -21,7 +22,7 @@ export default function LandingPage() {
   const { user, isLoading } = useAuth();
   const router = useRouter();
 
-  // Jika user sudah login, langsung arahkan ke /home tanpa menampilkan landing page
+  // Jika user sudah login, langsung arahkan ke /home
   useEffect(() => {
     if (!isLoading && user) {
       router.replace("/home");
@@ -29,16 +30,18 @@ export default function LandingPage() {
   }, [user, isLoading, router]);
 
   useEffect(() => {
-    const id = setInterval(() => {
+    let intervalId: ReturnType<typeof setInterval> | undefined;
+    const timeoutId = setTimeout(() => {
       setActive((i) => (i + 1) % COLOR_LAYERS.length);
-    }, HOLD_MS);
-    return () => clearInterval(id);
+      intervalId = setInterval(() => {
+        setActive((i) => (i + 1) % COLOR_LAYERS.length);
+      }, HOLD_MS);
+    }, INITIAL_DELAY_MS);
+    return () => {
+      clearTimeout(timeoutId);
+      if (intervalId) clearInterval(intervalId);
+    };
   }, []);
-
-  // Selama mengecek sesi login atau saat sedang redirect ke /home, tampilkan layar gelap bersih
-  if (isLoading || user) {
-    return <div className="min-h-screen bg-[#1b1c24]" />;
-  }
 
   return (
     <div className="relative min-h-screen overflow-hidden flex flex-col items-center justify-center text-white">
@@ -57,7 +60,14 @@ export default function LandingPage() {
       ))}
 
       <main className="relative z-10 flex flex-col items-center px-4">
-        <img src="/logo.svg" alt="Adaptive SoundScape Logo" className="w-32 h-32 md:w-40 md:h-40 object-contain mb-6" />
+        <img
+          src="/logo.svg"
+          alt="Adaptive SoundScape Logo"
+          width={160}
+          height={160}
+          fetchPriority="high"
+          className="w-32 h-32 md:w-40 md:h-40 object-contain mb-6"
+        />
 
         <h1 className="text-base md:text-lg font-serif mb-4 text-center">
           Welcome to{" "}
