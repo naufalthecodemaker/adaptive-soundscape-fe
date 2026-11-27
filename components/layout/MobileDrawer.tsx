@@ -1,6 +1,6 @@
 "use client";
 
-import { X, Home, User, Bookmark, Settings, LogOut, LogIn } from "lucide-react";
+import { X, Home, User, Bookmark, Settings, HelpCircle, LogOut, LogIn } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 
@@ -19,6 +19,7 @@ export default function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
     { label: "Profile", href: "/profile", icon: User },
     { label: "Library", href: "/library", icon: Bookmark },
     { label: "Settings", href: "/settings", icon: Settings },
+    { label: "Help", href: "/help", icon: HelpCircle },
   ];
 
   return (

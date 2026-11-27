@@ -23,6 +23,7 @@ export default function Navbar({ onOpenMobileMenu, onResetHome }: NavbarProps) {
     { label: "Profile", href: "/profile" },
     { label: "Library", href: "/library" },
     { label: "Settings", href: "/settings" },
+    { label: "Help", href: "/help" },
   ];
 
   return (
